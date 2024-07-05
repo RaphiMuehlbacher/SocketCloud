@@ -1,19 +1,35 @@
 import socket
-import threading
+import os
 
-HOST = "127.0.0.1"
-PORT = 9000
+
+HOST = "80.92.115.97"
+PORT = 43293
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((HOST, PORT))
+print(f"Connected to {HOST}:{PORT}")
 
-message = input(" -> ")  # take input
 
-while message.lower().strip() != 'bye':
-    client.send(message.encode())  # send message
-    data = client.recv(1024).decode()  # receive response
-    print('Received from server: ' + data)  # show response
+while True:
+    file_list: str = client.recv(1024).decode()
+    print(file_list)
+    action, file_name = input("Choose an action: ").split(" ", 1)
 
-    message = input(" -> ")  # again take input
+    if action == "upload":
+        if not os.path.isfile(file_name):
+            print("File doesn't exist.")
+            continue
 
-client.close()  # close the connection
+        with open(file_name, "rb") as file:
+            content: bytes = file.read()
+
+        client.sendall(f"{action} {file_name}".encode())
+
+        data_length = len(content)
+        client.sendall(f"{data_length}".encode().ljust(10))
+        response = client.recv(1024)
+        print(response.decode())
+        client.sendall(content)
+
+
+client.close()
