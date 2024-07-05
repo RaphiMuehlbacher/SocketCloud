@@ -26,11 +26,13 @@ while True:
         client.sendall(f"{action} {file_name}".encode())
 
         data_length = len(content)
-        client.sendall(f"{data_length}".encode().ljust(10))
 
         response = client.recv(1024)
-        print(response.decode())
-        client.sendall(content)
+        if response.decode() == f"File created: {file_name}":
+            client.sendall(content)
+            print(client.recv(1024).decode())
+        else:
+            print("Server failed to create the file.")
 
 
 client.close()

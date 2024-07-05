@@ -21,7 +21,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             self.data: str = self.request.recv(1024).strip().decode()
             if not self.data:
                 break
-            print(f"Received from {self.ip} action: {self.data}")
+            print(f"\nReceived from {self.ip} action: {self.data}")
 
             action, file_name = self.data.split(" ", 1)
             if action == "upload":
@@ -60,7 +60,7 @@ def main():
     with socketserver.ThreadingTCPServer((HOST, PORT), MyTCPHandler) as server:
         print(f"Server starting on {HOST}:{PORT}")
         print(f"Clients should connect to {HOST}:{PORT}")
-        print(f"This will keep running until you interrupt the program with Ctrl-C")
+        print(f"This will keep running until you interrupt the program with Ctrl-C\n")
         server.serve_forever()
 
 
