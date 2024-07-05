@@ -10,11 +10,12 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         self.ip = self.client_address[0]
         print(f"{self.ip} connected to the server")
+
         if not os.path.isdir(self.ip):
             os.mkdir(self.ip)
             self.request.sendall("You have no files".encode())
         else:
-            self.request.sendall(self.files_list().encode())
+            self.send_files_list()
 
         while True:
             self.data: str = self.request.recv(1024).strip().decode()
@@ -24,37 +25,32 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
             action, file_name = self.data.split(" ", 1)
             if action == "upload":
-                self.upload_name(file_name)
-                self.request.sendall(f"File created: {os.path.join(self.ip, file_name)}".encode())
-                self.upload_content(file_name)
+                self.upload_file(file_name)
             elif action == "download":
                 self.download(file_name)
             else:
                 self.request.sendall("Unknown command!".encode())
 
-    def files_list(self):
+    def send_files_list(self):
         files = os.listdir(self.ip)
-        str_files = ""
-        for file in files:
-            str_files += file + "\n"
-        return str_files
+        if files:
+            file_list = "\n".join(files)
+            self.request.sendall(file_list.encode())
+        else:
+            self.request.sendall("You have no files stored".encode())
 
-    def upload_name(self, file_name: str):
+    def upload_file(self, file_name):
+        self.request.sendall(f"File created: {os.path.join(self.ip, file_name)}".encode())
+
         with open(os.path.join(self.ip, file_name), "wb") as file:
-            print(f"File created: {os.path.join(self.ip, file_name)}")
-
-    def upload_content(self, file_name):
-        print("Started writing content")
-        data = b""
-        data_length = int(self.request.recv(10).strip())
-        print(f"Data lengh: {data_length}")
-        while len(data) < data_length:
-            data += self.request.recv(1024)
-
-        print(f"Data in bytes: {data}")
-        with open(os.path.join(self.ip, file_name), "wb") as file:
+            data = b""
+            while True:
+                new_data = self.request.recv(1024)
+                if not new_data:
+                    break
+                data += new_data
             file.write(data)
-        print("File uploaded")
+        print(f"File uploaded: {os.path.join(self.ip, file_name)}")
 
     def download(self, file_name: str):
         pass
@@ -70,4 +66,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

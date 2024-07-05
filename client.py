@@ -27,6 +27,7 @@ while True:
 
         data_length = len(content)
         client.sendall(f"{data_length}".encode().ljust(10))
+
         response = client.recv(1024)
         print(response.decode())
         client.sendall(content)
