@@ -17,7 +17,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             self.request.sendall(self.files_list().encode())
 
         while True:
-            self.data: bytes = self.request.recv(1024).strip()
+            self.data: str = self.request.recv(1024).strip().decode()
             if not self.data:
                 break
             print(f"Received from {self.ip} action: {self.data}")
@@ -71,13 +71,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-# TODO:
-# cloud
-# encrypted
-
-# nach connectem bekommt man eine liste mit datein
-# anfrage an server mit hochladen/runterladen/
-# wenn bekannte ip (folder schon da mit der ip)
-    #
-# folder erstellen
