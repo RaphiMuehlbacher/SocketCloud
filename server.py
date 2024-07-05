@@ -21,3 +21,7 @@ def main():
         print(f"Clients should connect to {HOST}:{PORT}")
         print(f"This will keep running until you interrupt the program with Ctrl-C")
         server.serve_forever()
+
+
+if __name__ == "__main__":
+    main()
