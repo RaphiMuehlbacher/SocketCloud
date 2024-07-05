@@ -2,7 +2,7 @@ import socket
 import os
 
 
-HOST = "80.92.115.97"
+HOST = "localhost"
 PORT = 43293
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -28,11 +28,8 @@ while True:
         data_length = len(content)
 
         response = client.recv(1024)
-        if response.decode() == f"File created: {file_name}":
-            client.sendall(content)
-            print(client.recv(1024).decode())
-        else:
-            print("Server failed to create the file.")
-
+        print(response.decode())
+        client.sendall(content)
+        break
 
 client.close()

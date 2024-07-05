@@ -1,7 +1,7 @@
 import socketserver
 import os
 
-HOST = "172.16.254.101"
+HOST = "localhost"
 PORT = 43293
 
 
