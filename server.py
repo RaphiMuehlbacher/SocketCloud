@@ -1,7 +1,7 @@
 import socketserver
 import os
 
-HOST = "localhost"
+HOST = "172.16.254.101"
 PORT = 43293
 
 
@@ -11,13 +11,13 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         self.ip = self.client_address[0]
         print(f"{self.ip} connected to the server")
 
-        if not os.path.isdir(self.ip):
-            os.mkdir(self.ip)
-            self.request.sendall("You have no files".encode())
-        else:
-            self.send_files_list()
-
         while True:
+            if not os.path.isdir(self.ip):
+                os.mkdir(self.ip)
+                self.request.sendall("You have no files".encode())
+            else:
+                self.send_files_list()
+
             self.data: str = self.request.recv(1024).strip().decode()
             if not self.data:
                 break
@@ -40,17 +40,15 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             self.request.sendall("You have no files stored".encode())
 
     def upload_file(self, file_name):
-        self.request.sendall(f"File created: {os.path.join(self.ip, file_name)}".encode())
+        data_length = int(self.request.recv(10).strip())
+        data = b""
+        while len(data) < data_length:
+            data += self.request.recv(1024)
 
         with open(os.path.join(self.ip, file_name), "wb") as file:
-            data = b""
-            while True:
-                new_data = self.request.recv(1024)
-                if not new_data:
-                    break
-                data += new_data
             file.write(data)
         print(f"File uploaded: {os.path.join(self.ip, file_name)}")
+        self.request.sendall(f"{file_name} uploaded successfully!".encode())
 
     def download(self, file_name: str):
         pass

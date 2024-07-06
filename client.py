@@ -2,7 +2,7 @@ import socket
 import os
 
 
-HOST = "localhost"
+HOST = "80.92.115.97"
 PORT = 43293
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -26,10 +26,12 @@ while True:
         client.sendall(f"{action} {file_name}".encode())
 
         data_length = len(content)
+        client.sendall(f"{data_length}".encode().ljust(10))
 
-        response = client.recv(1024)
-        print(response.decode())
         client.sendall(content)
-        break
+
+        response = client.recv(1024).decode()
+        print(response)
+
 
 client.close()
